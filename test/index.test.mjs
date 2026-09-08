@@ -46,6 +46,16 @@ describe("Knockout Prettier plugin", () => {
         );
     });
 
+    it("collapses excessive whitespace inside object bindings", async () => {
+        const result = await format(
+            '<div data-bind="attr:{      title:   title, class:     cssClass       }"></div>',
+        );
+
+        expect(result).toContain(
+            'data-bind="attr:{ title: title, class: cssClass }"',
+        );
+    });
+
     it("normalizes nested object bindings", async () => {
         const result = await format(
             '<div data-bind="config:{user:{name:name, role:role}}"></div>',
