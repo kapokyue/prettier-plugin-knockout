@@ -1,0 +1,27 @@
+{
+  "name": "prettier-plugin-knockout",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/kapokyue/prettier-plugin-knockout#readme",
+  "bugs": {
+    "url": "https://github.com/kapokyue/prettier-plugin-knockout/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kapokyue/prettier-plugin-knockout.git"
+  },
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "src/index.mjs",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "vitest": "^5.0.0"
+  },
+  "peerDependencies": {
+    "prettier": ">=3.0.0"
+  }
+}
