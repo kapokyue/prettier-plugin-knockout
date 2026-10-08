@@ -111,13 +111,13 @@ describe("Knockout Prettier plugin", () => {
 
         expect(lines).toEqual([
             "<!-- ko if: visible -->",
-            "    <div>Content</div>",
+            "  <div>Content</div>",
             "<!-- /ko -->",
         ]);
     });
 
-    it("indents nested Knockout containers according to their depth", async () => {
-        const result = await format(`
+    it("uses the HTML tab width for nested Knockout containers", async () => {
+        const source = `
             <!-- ko if: outer -->
             <section>
                 <!-- ko foreach: items -->
@@ -125,16 +125,30 @@ describe("Knockout Prettier plugin", () => {
                 <!-- /ko -->
             </section>
             <!-- /ko -->
-        `);
+        `;
 
-        const lines = result.trimEnd().split("\n");
+        const lines = (await format(source)).trimEnd().split("\n");
 
         expect(lines).toEqual([
             "<!-- ko if: outer -->",
-            "    <section>",
+            "  <section>",
             "    <!-- ko foreach: items -->",
-            '          <span data-bind="text: name"></span>',
+            '      <span data-bind="text: name"></span>',
             "    <!-- /ko -->",
+            "  </section>",
+            "<!-- /ko -->",
+        ]);
+
+        const wideLines = (await format(source, { tabWidth: 4 }))
+            .trimEnd()
+            .split("\n");
+
+        expect(wideLines).toEqual([
+            "<!-- ko if: outer -->",
+            "    <section>",
+            "        <!-- ko foreach: items -->",
+            '            <span data-bind="text: name"></span>',
+            "        <!-- /ko -->",
             "    </section>",
             "<!-- /ko -->",
         ]);

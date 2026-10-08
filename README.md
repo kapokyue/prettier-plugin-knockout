@@ -100,6 +100,13 @@ npm test
 
 Tests are located in [`test/index.test.mjs`](test/index.test.mjs).
 
+
+To test a specific file, run:
+
+```sh
+prettier --plugin ./src/index.mjs --parser knockout <path>
+```
+
 ## License
 
 [MIT](LICENSE)

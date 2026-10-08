@@ -95,7 +95,7 @@ function preprocess(text) {
     return normalized;
 }
 
-function indentKnockoutContainers(text) {
+function indentKnockoutContainers(text, tabWidth) {
     let depth = 0;
 
     return text
@@ -110,9 +110,7 @@ function indentKnockoutContainers(text) {
             }
 
             const formattedLine = trimmedLine
-                ? isOpening || isClosing
-                    ? `${"    ".repeat(depth)}${trimmedLine}`
-                    : `${"    ".repeat(depth)}${line}`
+                ? `${" ".repeat(tabWidth * depth)}${line}`
                 : "";
 
             if (isOpening) {
@@ -136,7 +134,7 @@ async function parse(text, options) {
 
     return {
         formatted: knockoutSyntax.test(text)
-            ? indentKnockoutContainers(html)
+            ? indentKnockoutContainers(html, options.tabWidth ?? 2)
             : html,
     };
 }
