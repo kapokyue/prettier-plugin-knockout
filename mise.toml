@@ -1,2 +1,5 @@
 [tools]
 node = "24"
+
+[env]
+_.path = ["node_modules/.bin"]
