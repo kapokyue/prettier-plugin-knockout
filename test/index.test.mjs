@@ -154,6 +154,31 @@ describe("Knockout Prettier plugin", () => {
         ]);
     });
 
+    it("is idempotent for a complex Knockout template", async () => {
+        const source = `<!-- ko if: showArchiveNotice() -->
+<tr class="archive-notice">
+    <th colspan="3" scope="row">
+        <div>
+            <strong>
+                <span data-bind="text: $t('Archive batch %1 is ready').replace(
+                    '%1',
+                    formatBatchCode(parseInt(getPendingBatchId())))
+                ">
+                </span>
+            </strong>
+        </div>
+        <div>
+            <a class="action review" href="/archive"><span data-bind="text: $t('Review batch')"></span></a>
+        </div>
+    </th>
+</tr>
+<!-- /ko -->`;
+
+        const result = await format(source);
+
+        expect(await format(result)).toBe(result);
+    });
+
     it("does not indent ordinary HTML comments as containers", async () => {
         const result = await format(`
             <!-- regular comment -->

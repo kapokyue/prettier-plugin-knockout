@@ -122,8 +122,42 @@ function indentKnockoutContainers(text, tabWidth) {
         .join("\n");
 }
 
+function removeKnockoutContainerIndentation(text, tabWidth) {
+    let depth = 0;
+
+    return text
+        .split("\n")
+        .map((line) => {
+            const trimmedLine = line.trim();
+            const isOpening = /^<!--\s*ko\b/.test(trimmedLine);
+            const isClosing = /^<!--\s*\/ko\s*-->$/.test(trimmedLine);
+
+            if (isClosing) {
+                depth = Math.max(0, depth - 1);
+            }
+
+            const indentation = Math.min(
+                line.length - line.trimStart().length,
+                tabWidth * depth,
+            );
+            const formattedLine = line.slice(indentation);
+
+            if (isOpening) {
+                depth += 1;
+            }
+
+            return formattedLine;
+        })
+        .join("\n");
+}
+
 async function parse(text, options) {
-    const normalized = preprocess(text);
+    const tabWidth = options.tabWidth ?? 2;
+    const normalized = preprocess(
+        knockoutSyntax.test(text)
+            ? removeKnockoutContainerIndentation(text, tabWidth)
+            : text,
+    );
     const html = await prettier.format(normalized, {
         ...options,
         parser: "html",
@@ -134,7 +168,7 @@ async function parse(text, options) {
 
     return {
         formatted: knockoutSyntax.test(text)
-            ? indentKnockoutContainers(html, options.tabWidth ?? 2)
+            ? indentKnockoutContainers(html, tabWidth)
             : html,
     };
 }
