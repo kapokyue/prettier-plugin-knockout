@@ -95,6 +95,29 @@ function preprocess(text) {
     return normalized;
 }
 
+function getKnockoutLineDepth(line, depth) {
+    const markers = [...line.matchAll(/<!--\s*(\/?)ko\b[\s\S]*?-->/g)];
+    const hasLeadingClosingMarker =
+        markers[0]?.[1] && markers[0].index === 0;
+    const lineDepth = hasLeadingClosingMarker
+        ? Math.max(depth - 1, 0)
+        : depth;
+
+    if (hasLeadingClosingMarker) {
+        depth = lineDepth;
+    }
+
+    for (
+        let index = hasLeadingClosingMarker ? 1 : 0;
+        index < markers.length;
+        index += 1
+    ) {
+        depth = markers[index][1] ? Math.max(depth - 1, 0) : depth + 1;
+    }
+
+    return { lineDepth, nextDepth: depth };
+}
+
 function indentKnockoutContainers(text, tabWidth) {
     let depth = 0;
 
@@ -102,20 +125,15 @@ function indentKnockoutContainers(text, tabWidth) {
         .split("\n")
         .map((line) => {
             const trimmedLine = line.trim();
-            const isOpening = /^<!--\s*ko\b/.test(trimmedLine);
-            const isClosing = /^<!--\s*\/ko\s*-->$/.test(trimmedLine);
-
-            if (isClosing) {
-                depth = Math.max(0, depth - 1);
-            }
+            const { lineDepth, nextDepth } = getKnockoutLineDepth(
+                trimmedLine,
+                depth,
+            );
 
             const formattedLine = trimmedLine
-                ? `${" ".repeat(tabWidth * depth)}${line}`
+                ? `${" ".repeat(tabWidth * lineDepth)}${line}`
                 : "";
-
-            if (isOpening) {
-                depth += 1;
-            }
+            depth = nextDepth;
 
             return formattedLine;
         })
@@ -129,22 +147,17 @@ function removeKnockoutContainerIndentation(text, tabWidth) {
         .split("\n")
         .map((line) => {
             const trimmedLine = line.trim();
-            const isOpening = /^<!--\s*ko\b/.test(trimmedLine);
-            const isClosing = /^<!--\s*\/ko\s*-->$/.test(trimmedLine);
-
-            if (isClosing) {
-                depth = Math.max(0, depth - 1);
-            }
+            const { lineDepth, nextDepth } = getKnockoutLineDepth(
+                trimmedLine,
+                depth,
+            );
 
             const indentation = Math.min(
                 line.length - line.trimStart().length,
-                tabWidth * depth,
+                tabWidth * lineDepth,
             );
             const formattedLine = line.slice(indentation);
-
-            if (isOpening) {
-                depth += 1;
-            }
+            depth = nextDepth;
 
             return formattedLine;
         })

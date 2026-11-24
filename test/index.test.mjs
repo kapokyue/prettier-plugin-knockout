@@ -154,6 +154,20 @@ describe("Knockout Prettier plugin", () => {
         ]);
     });
 
+    it("handles an inline closed Knockout container inside a nested container", async () => {
+        const result = await format(`
+            <!-- ko foreach: elems() -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+            <!-- /ko -->
+        `);
+
+        expect(result.trimEnd().split("\n")).toEqual([
+            "<!-- ko foreach: elems() -->",
+            "  <!-- ko template: getTemplate() --><!-- /ko -->",
+            "<!-- /ko -->",
+        ]);
+    });
+
     it("is idempotent for a complex Knockout template", async () => {
         const source = `<!-- ko if: showArchiveNotice() -->
 <tr class="archive-notice">
